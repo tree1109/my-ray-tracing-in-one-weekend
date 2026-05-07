@@ -26,6 +26,10 @@ public:
         return min < x && x < max;
     }
 
+    double clamp(const double x) const {
+        return std::clamp(x, min, max);
+    }
+
     static const interval empty, universe;
 };
 
