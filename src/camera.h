@@ -94,7 +94,9 @@ private:
         hit_record record;
 
         if (world.hit(r, interval(0.001, infinity), record)) {
-            vec3 direction = random_on_hemisphere(record.normal);
+            // vec3 direction = random_on_hemisphere(record.normal);
+            vec3 direction = record.normal + random_unit_vector();
+
 
             // return 0.5 * (record.normal + color(1.0, 1.0, 1.0));
             ray next_ray(record.p, direction);
