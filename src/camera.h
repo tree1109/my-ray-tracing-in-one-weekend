@@ -93,7 +93,7 @@ private:
 
         hit_record record;
 
-        if (world.hit(r, interval(0.0, infinity), record)) {
+        if (world.hit(r, interval(0.001, infinity), record)) {
             vec3 direction = random_on_hemisphere(record.normal);
 
             // return 0.5 * (record.normal + color(1.0, 1.0, 1.0));
