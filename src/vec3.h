@@ -5,14 +5,16 @@
 
 class vec3 {
 public:
-    double e[3]{};
-
     vec3() : e{0, 0, 0} {}
     vec3(const double x, const double y, const double z) : e{x, y, z} {}
 
-    double x() const { return e[0]; }
-    double y() const { return e[1]; }
-    double z() const { return e[2]; }
+    [[nodiscard]] const double& x() const { return e[0]; }
+    [[nodiscard]] const double& y() const { return e[1]; }
+    [[nodiscard]] const double& z() const { return e[2]; }
+
+    [[nodiscard]] const double& r() const { return e[0]; }
+    [[nodiscard]] const double& g() const { return e[1]; }
+    [[nodiscard]] const double& b() const { return e[2]; }
 
     vec3 operator-() const {
         return vec3{-e[0], -e[1], -e[2]};
@@ -47,6 +49,9 @@ public:
     [[nodiscard]] double length_squared() const {
         return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
     }
+
+public:
+    double e[3]{};
 };
 
 using point3 = vec3;
