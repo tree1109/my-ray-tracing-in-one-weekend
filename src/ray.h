@@ -2,6 +2,7 @@
 
 #ifndef INCLUDE_RAY_H
 #define INCLUDE_RAY_H
+
 #include "vec3.h"
 
 class ray {

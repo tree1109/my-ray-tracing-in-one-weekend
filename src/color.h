@@ -3,7 +3,7 @@
 #ifndef INCLUDE_COLOR_H
 #define INCLUDE_COLOR_H
 
-#include <iostream>
+#include "rtweekend.h"
 
 #include "vec3.h"
 
