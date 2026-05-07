@@ -9,7 +9,7 @@ class sphere final : public hittable {
 public:
     sphere(const point3& center, const double radius) : center(center), radius(std::max(radius, 0.0)) {}
 
-    bool hit(const ray& r, const double ray_t_min, const double ray_t_max, hit_record& record) const override {
+    bool hit(const ray& r, const interval& ray_t, hit_record& record) const override {
         const vec3 oc  = center - r.origin();
         const double a = r.direction().length_squared();
         const double h = dot(r.direction(), oc);
@@ -24,9 +24,9 @@ public:
 
         // Find the nearest root that lies in the acceptable range.
         double root = (h - sqrt_d) / a;
-        if (root <= ray_t_min || ray_t_max <= root) {
+        if (!ray_t.surrounds(root)) {
             root = (h + sqrt_d) / a;
-            if (root <= ray_t_min || ray_t_max <= root) {
+            if (!ray_t.surrounds(root)) {
                 return false;
             }
         }

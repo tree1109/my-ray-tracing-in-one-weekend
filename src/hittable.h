@@ -26,7 +26,7 @@ public:
     virtual ~hittable() = default;
 
 public:
-    virtual bool hit(const ray& r, const double ray_t_min, const double ray_t_max, hit_record& record) const = 0;
+    virtual bool hit(const ray& r, const interval& ray_t, hit_record& record) const = 0;
 };
 
 

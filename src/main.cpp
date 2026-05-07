@@ -14,7 +14,7 @@ namespace {
 
     color ray_color(const ray& r, const hittable& world) {
         hit_record record;
-        if (world.hit(r, 0.0, infinity, record)) {
+        if (world.hit(r, interval(0.0, infinity), record)) {
             return 0.5 * (record.normal + color(1.0, 1.0, 1.0));
         }
 
@@ -70,7 +70,6 @@ int main() {
                 const auto ray_direction = pixel_center - camera_center;
                 const ray r(camera_center, ray_direction);
 
-                // color pixel_color = color{double(i) / (image_width - 1), double(j) / (image_height - 1), 0};
                 const color pixel_color = ray_color(r, world);
                 write_color(std::cout, pixel_color);
             }
