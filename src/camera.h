@@ -97,10 +97,10 @@ private:
             // vec3 direction = random_on_hemisphere(record.normal);
             vec3 direction = record.normal + random_unit_vector();
 
-
-            // return 0.5 * (record.normal + color(1.0, 1.0, 1.0));
+            const double reflectance = 0.5;
+            // return reflectance * (record.normal + color(1.0, 1.0, 1.0));
             ray next_ray(record.p, direction);
-            return 0.5 * ray_color(next_ray, depth - 1, world);
+            return reflectance * ray_color(next_ray, depth - 1, world);
         }
 
         vec3 unit_direction = unit_vector(r.direction());
