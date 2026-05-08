@@ -4,6 +4,7 @@
 #define INCLUDE_CAMERA_H
 
 #include "hittable.h"
+#include "material.h"
 
 class camera {
 public:
@@ -94,13 +95,12 @@ private:
         hit_record record;
 
         if (world.hit(r, interval(0.001, infinity), record)) {
-            // vec3 direction = random_on_hemisphere(record.normal);
-            vec3 direction = record.normal + random_unit_vector();
-
-            const double reflectance = 0.5;
-            // return reflectance * (record.normal + color(1.0, 1.0, 1.0));
-            ray next_ray(record.p, direction);
-            return reflectance * ray_color(next_ray, depth - 1, world);
+            ray scattered;
+            color attenuation;
+            if (record.mat->scatter(r, record, attenuation, scattered)) {
+                return attenuation * ray_color(scattered, depth - 1, world);
+            }
+            return color(0, 0, 0);
         }
 
         vec3 unit_direction = unit_vector(r.direction());

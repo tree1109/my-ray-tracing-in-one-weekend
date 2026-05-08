@@ -14,18 +14,33 @@ public:
     }
 };
 
-class lambertial final : public material {
+class lambertian final : public material {
 public:
-    lambertial(const color& albedo) : albedo(albedo) {}
+    lambertian(const color& albedo) : albedo(albedo) {}
 
     bool scatter(const ray& r_in, const hit_record& record, color& attenuation, ray& scattered) const override {
         auto scatter_direction = record.normal + random_unit_vector();
 
         // Catch degenerate scatter direction
         if (scatter_direction.near_zero())
-            scatter_direction = rec.normal;
+            scatter_direction = record.normal;
 
         scattered = ray(record.p, scatter_direction);
+        attenuation = albedo;
+        return true;
+    }
+
+private:
+    color albedo;
+};
+
+class metal final : public material {
+    public:
+    metal(const color& albedo) : albedo(albedo) {}
+
+    bool scatter(const ray& r_in, const hit_record& record, color& attenuation, ray& scattered) const override {
+        vec3 reflected = reflect(r_in.direction(), record.normal);
+        scattered = ray(record.p, reflected);
         attenuation = albedo;
         return true;
     }
