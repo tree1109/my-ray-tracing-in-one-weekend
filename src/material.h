@@ -63,9 +63,20 @@ public:
         double ri = record.front_face ? (1.0 / refraction_index) : refraction_index;
 
         vec3 unit_direction = unit_vector(r_in.direction());
-        vec3 refracted = refract(unit_direction, record.normal, ri);
+        double cos_theta = std::min(dot(-unit_direction, record.normal), 1.0);
+        double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
 
-        scattered = ray(record.p, refracted);
+        bool cannot_refract = ri * sin_theta > 1.0;
+        vec3 direction;
+
+        if (cannot_refract) {
+            direction = reflect(unit_direction, record.normal);
+        }
+        else {
+            direction = refract(unit_direction, record.normal, ri);
+        }
+
+        scattered = ray(record.p, direction);
         return true;
     }
 
