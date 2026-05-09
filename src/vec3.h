@@ -12,10 +12,6 @@ public:
     [[nodiscard]] const double& y() const { return e[1]; }
     [[nodiscard]] const double& z() const { return e[2]; }
 
-    [[nodiscard]] const double& r() const { return e[0]; }
-    [[nodiscard]] const double& g() const { return e[1]; }
-    [[nodiscard]] const double& b() const { return e[2]; }
-
     vec3 operator-() const {
         return vec3{-e[0], -e[1], -e[2]};
     }

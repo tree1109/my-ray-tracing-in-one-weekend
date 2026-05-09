@@ -5,6 +5,9 @@
 #include "sphere.h"
 #include "material.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "std_image_write.h"
+
 // https://raytracing.github.io/books/RayTracingInOneWeekend.html
 
 // PPM Viewer: https://www.cs.rhodes.edu/welshc/COMP141_F16/ppmReader.html
@@ -81,6 +84,7 @@ namespace {
 
         cam.aspect_ratio      = 16.0 / 9.0;
         cam.image_width       = 1200;
+        // cam.samples_per_pixel = 500;
         cam.samples_per_pixel = 10;
         cam.max_depth         = 50;
 
@@ -101,5 +105,9 @@ int main() {
     // scene_1(cam, world);
     scene_final(cam, world);
 
-    cam.render(world);
+    auto render_image = cam.render(world);
+    render_image = linear_image_to_gamma_image(render_image);
+
+    // write_image_ppm(std::cout, render_image);
+    write_image_png("output.png", render_image);
 }
