@@ -8,18 +8,13 @@
 class ray {
 public:
     ray() = default;
-    ray(const point3& origin, const vec3& direction) : m_origin(origin), m_direction(direction) {}
+    ray(const point3& origin, const vec3& direction);
 
-    [[nodiscard]] const point3& origin() const {
-        return m_origin;
-    }
-    [[nodiscard]] const vec3& direction() const {
-        return m_direction;
-    }
+    [[nodiscard]] const point3& origin() const;
 
-    [[nodiscard]] point3 at(const double t) const {
-        return m_origin + t * m_direction;
-    }
+    [[nodiscard]] const vec3& direction() const;
+
+    [[nodiscard]] point3 at(double t) const;
 
 private:
     point3 m_origin;

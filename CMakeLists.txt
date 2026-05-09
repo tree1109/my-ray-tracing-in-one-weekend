@@ -8,8 +8,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/external/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/external/*.h"
 )
 
 add_executable(main ${SRC_FILES})
 
 target_include_directories(main PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_include_directories(main PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/external")

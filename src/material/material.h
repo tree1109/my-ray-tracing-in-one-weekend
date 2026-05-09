@@ -3,7 +3,7 @@
 #ifndef INCLUDE_MATERIAL_H
 #define INCLUDE_MATERIAL_H
 
-#include "hittable.h"
+#include "utility.h"
 
 class material {
 public:
