@@ -4,27 +4,109 @@
 #include "utility.h"
 #include "hittable/hittable.h"
 #include "material/material.h"
+#include <deque>
+#include <format>
+#include <future>
 
 image camera::render(const hittable& world) {
     initialize();
 
     image image(image_width, image_height);
 
-    for (int j = 0; j < image_height; j++) {
-        std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
-        for (int i = 0; i < image_width; i++) {
-            color pixel_color(0, 0, 0);
-            for (int sample = 0; sample < samples_per_pixel; sample++) {
-                ray r       = get_ray(i, j);
-                pixel_color += ray_color(r, max_depth, world);
-            }
-            pixel_color = pixel_samples_scale * pixel_color;
+    // Single thread
+    if (false) {
+        for (int j = 0; j < image_height; j++) {
+            std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+            for (int i = 0; i < image_width; i++) {
+                color pixel_color(0, 0, 0);
+                for (int sample = 0; sample < samples_per_pixel; sample++) {
+                    ray r       = get_ray(i, j);
+                    pixel_color += ray_color(r, max_depth, world);
+                }
+                pixel_color = pixel_samples_scale * pixel_color;
 
-            image.write_color(i, j, pixel_color);
+                image.write_color(i, j, pixel_color);
+            }
         }
+
+        std::clog << "\rDone.                                                                           \n";
+    }
+    // Multi thread
+    else {
+        auto write_colors = [&](const int x, const int y, const int w, const int h) {
+            for (int j = y; j < h; j++) {
+                for (int i = x; i < w; i++) {
+                    color pixel_color(0, 0, 0);
+                    for (int sample = 0; sample < samples_per_pixel; sample++) {
+                        ray r       = get_ray(i, j);
+                        pixel_color += ray_color(r, max_depth, world);
+                    }
+                    pixel_color = pixel_samples_scale * pixel_color;
+
+                    image.write_color(i, j, pixel_color);
+                }
+            }
+        };
+
+        constexpr int block_size = 16;
+        const int num_threads = std::thread::hardware_concurrency();
+        std::vector<std::vector<std::function<void()>>> threads_jobs(num_threads);
+        std::clog << "\rThread num: " << num_threads << ' ' << std::flush;
+
+        const int total_blocks = (image_width + block_size - 1) / block_size * (image_height + block_size - 1) / block_size;
+        for (auto& jobs : threads_jobs) {
+            jobs.reserve((total_blocks + num_threads - 1) / num_threads);
+        }
+        std::clog << "\rBlocks total: " << total_blocks << ' ' << std::flush;
+
+        int current_block = 0;
+        for (int j = 0; j < image_height; j+=block_size) {
+            for (int i = 0; i < image_width; i+=block_size) {
+                const int x = i;
+                const int y = j;
+                const int w = std::min(i + block_size, image_width);
+                const int h = std::min(j + block_size, image_height);
+
+                auto job = std::bind(write_colors, x, y, w, h);
+                threads_jobs.at(current_block % num_threads).push_back(std::move(job));
+
+                ++current_block;
+            }
+        }
+
+        const auto start_time = std::chrono::steady_clock::now();
+
+        std::vector<std::thread> threads;
+        threads.reserve(num_threads);
+        int current_thread = 0;
+        for (const auto& jobs : threads_jobs) {
+            auto thread = std::thread{[&jobs, current_thread] {
+                const int total_jobs = (int)jobs.size();
+                int current_job = 0;
+                for (const auto& job : jobs) {
+                    std::clog << std::format("\rThread {} with remaining job {} ", current_thread, total_jobs - current_job) << std::flush;
+                    job();
+                    ++current_job;
+                }
+            }};
+            threads.push_back(std::move(thread));
+            ++current_thread;
+        }
+
+        current_thread = 0;
+        const int total_threads = (int)threads.size();
+        for (auto& thread : threads) {
+            std::clog << "\rThread remaining: " << (total_threads - current_thread) << ' ' << std::flush;
+            thread.join();
+
+            ++current_thread;
+        }
+
+        const auto elapsed_time = std::chrono::steady_clock::now() - start_time;
+        const auto time = std::chrono::duration_cast<std::chrono::duration<float>>(elapsed_time);
+        std::clog << "\rDone by " << time.count() << " second.                                             \n";
     }
 
-    std::clog << "\rDone.                 \n";
     return image;
 }
 
