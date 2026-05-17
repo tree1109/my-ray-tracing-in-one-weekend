@@ -8,12 +8,16 @@
 
 class sphere final : public hittable {
 public:
-    sphere(const point3& center, double radius, std::shared_ptr<material> mat);
+    // Stationary Sphere
+    sphere(const point3& static_center, double radius, std::shared_ptr<material> mat);
+
+    // Moving Sphere
+    sphere(const point3& from_center, const point3& to_center, double radius, std::shared_ptr<material> mat);
 
     bool hit(const ray& r, const interval& ray_t, hit_record& record) const override;
 
 private:
-    point3 center;
+    ray center;
     double radius;
     std::shared_ptr<material> mat;
 };
