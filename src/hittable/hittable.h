@@ -7,6 +7,8 @@
 #include "ray.h"
 #include <memory>
 
+#include "aabb.h"
+
 class material;
 
 class hit_record {
@@ -27,6 +29,8 @@ public:
 
 public:
     virtual bool hit(const ray& r, const interval& ray_t, hit_record& record) const = 0;
+
+    virtual aabb bounding_box() const = 0;
 };
 
 

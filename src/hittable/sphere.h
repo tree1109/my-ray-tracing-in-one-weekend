@@ -16,10 +16,13 @@ public:
 
     bool hit(const ray& r, const interval& ray_t, hit_record& record) const override;
 
+    aabb bounding_box() const override;
+
 private:
     ray center;
     double radius;
     std::shared_ptr<material> mat;
+    aabb bbox;
 };
 
 #endif // INCLUDE_SPHERE_H

@@ -4,12 +4,18 @@ sphere::sphere(const point3& center, double radius, std::shared_ptr<material> ma
     : center(center, vec3(0, 0, 0))
     , radius(std::fmax(radius, 0))
     , mat(std::move(mat)) {
+    const vec3 radius_vec = vec3(radius, radius, radius);
+    bbox            = aabb(center - radius_vec, center + radius_vec);
 }
 
 sphere::sphere(const point3& from_center, const point3& to_center, double radius, std::shared_ptr<material> mat)
     : center(from_center, to_center - from_center)
     , radius(std::fmax(radius, 0))
-    , mat(mat) {
+    , mat(std::move(mat)) {
+    const vec3 radius_vec = vec3(radius, radius, radius);
+    const aabb box1(center.at(0) - radius_vec, center.at(0) + radius_vec);
+    const aabb box2(center.at(1) - radius_vec, center.at(1) + radius_vec);
+    bbox            = aabb(box1, box2);
 }
 
 bool sphere::hit(const ray& r, const interval& ray_t, hit_record& record) const {
@@ -42,4 +48,8 @@ bool sphere::hit(const ray& r, const interval& ray_t, hit_record& record) const 
     record.mat = mat;
 
     return true;
+}
+
+aabb sphere::bounding_box() const {
+    return bbox;
 }

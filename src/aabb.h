@@ -11,10 +11,9 @@ class aabb
 public:
     // The default AABB is empty, since intervals are empty by default.
     aabb() = default;
-
     aabb(const interval& x, const interval& y, const interval& z);
-
     aabb(const point3& a, const point3& b);
+    aabb(const aabb& box0, const aabb& box1);
 
     const interval& axis_interval(int n) const;
 
