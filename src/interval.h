@@ -21,7 +21,6 @@ public:
     interval expand(double delta) const;
 
     static const interval& empty();
-
     static const interval& universe();
 
 public:

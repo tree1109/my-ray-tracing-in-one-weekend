@@ -19,6 +19,11 @@ public:
 
     bool hit(const ray& r, interval ray_t) const;
 
+    int longest_axis() const;
+
+    static const aabb& empty();
+    static const aabb& universe();
+
 public:
     interval x;
     interval y;
