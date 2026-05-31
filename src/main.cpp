@@ -3,6 +3,7 @@
 #include "hittable/hittable.h"
 #include "hittable/hittable_list.h"
 #include "material/material.h"
+#include "texture/checker_texture.h"
 #include <hittable/sphere.h>
 
 // https://raytracing.github.io/books/RayTracingInOneWeekend.html
@@ -17,30 +18,31 @@ namespace {
         auto material_bubble = std::make_shared<dielectric>(1.00 / 1.50);
         auto material_right  = std::make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
 
-        world.add(std::make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
-        world.add(std::make_shared<sphere>(point3( 0.0,    0.0, -1.2),   0.5, material_center));
-        world.add(std::make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
-        world.add(std::make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.4, material_bubble));
-        world.add(std::make_shared<sphere>(point3( 1.0,    0.0, -1.0),   0.5, material_right));
+        world.add(std::make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground));
+        world.add(std::make_shared<sphere>(point3(0.0, 0.0, -1.2), 0.5, material_center));
+        world.add(std::make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, material_left));
+        world.add(std::make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.4, material_bubble));
+        world.add(std::make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
 
-        cam.aspect_ratio = 16.0 / 9.0;
-        cam.image_width  = 900;
+        cam.aspect_ratio      = 16.0 / 9.0;
+        cam.image_width       = 900;
         cam.samples_per_pixel = 100;
-        cam.max_depth = 50;
+        cam.max_depth         = 50;
 
         cam.vfov     = 20;
-        cam.lookfrom = point3(-2,2,1);
-        cam.lookat   = point3(0,0,-1);
-        cam.vup      = vec3(0,1,0);
+        cam.lookfrom = point3(-2, 2, 1);
+        cam.lookat   = point3(0, 0, -1);
+        cam.vup      = vec3(0, 1, 0);
 
         cam.defocus_angle = 10.0;
-        cam.focus_dist = 3.4;
+        cam.focus_dist    = 3.4;
     }
 
     void scene_final(camera& cam, hittable_list& world) {
-        auto ground_material = std::make_shared<lambertian>(color(0.5, 0.5, 0.5));
+        auto checker_tex = std::make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
+        auto ground_mat  = std::make_shared<lambertian>(checker_tex);
 
-        world.add(std::make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
+        world.add(std::make_shared<sphere>(point3(0, -1000, 0), 1000, ground_mat));
 
         for (int a = -11; a < 11; a++) {
             for (int b = -11; b < 11; b++) {
@@ -54,7 +56,7 @@ namespace {
                         // diffuse
                         auto albedo     = color::random() * color::random();
                         sphere_material = std::make_shared<lambertian>(albedo);
-                        auto center2 = center + vec3(0, random_double(0, 0.5), 0);
+                        auto center2    = center + vec3(0, random_double(0, 0.5), 0);
                         world.add(std::make_shared<sphere>(center, center2, 0.2, sphere_material));
                     } else if (choose_mat < 0.95) {
                         // metal
@@ -82,13 +84,13 @@ namespace {
 
         world = hittable_list(std::make_shared<bvh_node>(world));
 
-        cam.aspect_ratio      = 16.0 / 9.0;
+        cam.aspect_ratio = 16.0 / 9.0;
         // cam.image_width       = 1200;
-        cam.image_width       = 400;
+        cam.image_width = 400;
         // cam.samples_per_pixel = 500;
         cam.samples_per_pixel = 100;
         // cam.samples_per_pixel = 10;
-        cam.max_depth         = 50;
+        cam.max_depth = 50;
 
         cam.vfov     = 20;
         cam.lookfrom = point3(13, 2, 3);
@@ -98,7 +100,7 @@ namespace {
         cam.defocus_angle = 0.6;
         cam.focus_dist    = 10.0;
     }
-}
+} // namespace
 
 int main() {
     hittable_list world;
@@ -108,7 +110,7 @@ int main() {
     scene_final(cam, world);
 
     auto render_image = cam.render(world);
-    render_image = linear_image_to_gamma_image(render_image);
+    render_image      = linear_image_to_gamma_image(render_image);
 
     // write_image_ppm(std::cout, render_image);
     write_image_png("output.png", render_image);

@@ -4,6 +4,8 @@
 #define INCLUDE_MATERIAL_H
 
 #include "utility.h"
+#include "texture/solid_color.h"
+#include "texture/texture.h"
 
 class material {
 public:
@@ -16,7 +18,8 @@ public:
 
 class lambertian final : public material {
 public:
-    lambertian(const color& albedo) : albedo(albedo) {}
+    lambertian(const color& albedo) : tex(std::make_shared<solid_color>(albedo)) {}
+    lambertian(const std::shared_ptr<texture>& albedo) : tex(albedo) {}
 
     bool scatter(const ray& r_in, const hit_record& record, color& attenuation, ray& scattered) const override {
         auto scatter_direction = record.normal + random_unit_vector();
@@ -26,12 +29,12 @@ public:
             scatter_direction = record.normal;
 
         scattered = ray(record.p, scatter_direction, r_in.time());
-        attenuation = albedo;
+        attenuation = tex->value(record.u, record.v, record.p);
         return true;
     }
 
 private:
-    color albedo;
+    std::shared_ptr<texture> tex;
 };
 
 class metal final : public material {
