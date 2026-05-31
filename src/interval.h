@@ -17,6 +17,8 @@ public:
 
     double clamp(double x) const;
 
+    interval expand(double delta) const;
+
     static const interval& empty();
 
     static const interval& universe();
