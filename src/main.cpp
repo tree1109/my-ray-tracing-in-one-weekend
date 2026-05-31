@@ -2,8 +2,12 @@
 #include "hittable/bvh.h"
 #include "hittable/hittable.h"
 #include "hittable/hittable_list.h"
+#include "material/dielectric.h"
+#include "material/lambertian.h"
 #include "material/material.h"
+#include "material/metal.h"
 #include "texture/checker_texture.h"
+#include "utility.h"
 #include <hittable/sphere.h>
 
 // https://raytracing.github.io/books/RayTracingInOneWeekend.html
