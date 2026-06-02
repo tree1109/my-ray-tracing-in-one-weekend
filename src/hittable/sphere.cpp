@@ -1,5 +1,7 @@
 ﻿#include "sphere.h"
 
+#include <numbers>
+
 sphere::sphere(const point3& center, double radius, std::shared_ptr<material> mat)
     : center(center, vec3(0, 0, 0))
     , radius(std::fmax(radius, 0))
@@ -45,6 +47,7 @@ bool sphere::hit(const ray& r, const interval& ray_t, hit_record& record) const 
     record.p            = r.at(record.t);
     vec3 outward_normal = (record.p - current_center) / radius;
     record.set_face_normal(r, outward_normal);
+    get_sphere_uv(outward_normal, record.u, record.v);
     record.mat = mat;
 
     return true;
@@ -52,4 +55,19 @@ bool sphere::hit(const ray& r, const interval& ray_t, hit_record& record) const 
 
 aabb sphere::bounding_box() const {
     return bbox;
+}
+
+void sphere::get_sphere_uv(const point3& p, double& u, double& v) {
+    // p: a given point on the sphere of radius one, centered at the origin.
+    // u: returned value [0,1] of angle around the Y axis from X=-1.
+    // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+    //     <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
+    //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
+    //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
+
+    auto theta = std::acos(-p.y());
+    auto phi = std::atan2(-p.z(), p.x()) + std::numbers::pi;
+
+    u = phi / (2*std::numbers::pi);
+    v = theta / std::numbers::pi;
 }
