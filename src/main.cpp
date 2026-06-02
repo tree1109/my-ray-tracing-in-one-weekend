@@ -42,7 +42,7 @@ namespace {
         cam.focus_dist    = 3.4;
     }
 
-    void scene_final(camera& cam, hittable_list& world) {
+    void scene_bouncing_spheres(camera& cam, hittable_list& world) {
         auto checker_tex = std::make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
         auto ground_mat  = std::make_shared<lambertian>(checker_tex);
 
@@ -104,18 +104,49 @@ namespace {
         cam.defocus_angle = 0.6;
         cam.focus_dist    = 10.0;
     }
+
+    void scene_checkered_spheres(camera& cam, hittable_list& world) {
+        auto checker = std::make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
+
+        world.add(std::make_shared<sphere>(point3(0,-10, 0), 10, std::make_shared<lambertian>(checker)));
+        world.add(std::make_shared<sphere>(point3(0, 10, 0), 10, std::make_shared<lambertian>(checker)));
+
+        cam.aspect_ratio      = 16.0 / 9.0;
+        cam.image_width       = 400;
+        cam.samples_per_pixel = 100;
+        cam.max_depth         = 50;
+
+        cam.vfov     = 20;
+        cam.lookfrom = point3(13,2,3);
+        cam.lookat   = point3(0,0,0);
+        cam.vup      = vec3(0,1,0);
+
+        cam.defocus_angle = 0;
+    }
 } // namespace
 
 int main() {
+
     hittable_list world;
     camera cam;
 
-    // scene_1(cam, world);
-    scene_final(cam, world);
+    // Scene.
+    switch (2) {
+        case 1: scene_bouncing_spheres(cam, world); break;
+        case 2: scene_checkered_spheres(cam, world); break;
+        default: scene_1(cam, world); break;
+    }
 
+    // Render.
     auto render_image = cam.render(world);
     render_image      = linear_image_to_gamma_image(render_image);
 
-    // write_image_ppm(std::cout, render_image);
-    write_image_png("output.png", render_image);
+    // Output image.
+    const bool use_ppm_format = false;
+    if (use_ppm_format) {
+        write_image_ppm(std::cout, render_image);
+    }
+    else {
+        write_image_png("output.png", render_image);
+    }
 }
